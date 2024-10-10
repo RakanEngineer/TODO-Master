@@ -114,13 +114,14 @@ namespace TODO_Master
 
                     while (reader.Read())
                     {
-                        int id = int.Parse(reader["Id"].ToString());
-                        string title = reader["Title"].ToString();
-                        DateTime dueDate = DateTime.Parse(reader["DueDate"].ToString());
+                        WriteLine(reader[1]);
+                        //int id = int.Parse(reader["Id"].ToString());
+                        //string title = reader["Title"].ToString();
+                        //DateTime dueDate = DateTime.Parse(reader["DueDate"].ToString());
 
-                        Domain.Task task = new Domain.Task(id, title, dueDate);
+                        //Domain.Task task = new Domain.Task(id, title, dueDate);
 
-                        taskList.Add(task);
+                        //taskList.Add(task);
                     }
 
                     reader.Close();
