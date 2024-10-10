@@ -18,7 +18,8 @@ namespace TODO_Master
             {
                 WriteLine("1. Add task");
                 WriteLine("2. List tasks");
-                WriteLine("3. Exit");
+                WriteLine("3. Delete All tasks");
+                WriteLine("4. Exit");
 
                 ConsoleKeyInfo keyPressed = ReadKey(true);
 
@@ -62,6 +63,15 @@ namespace TODO_Master
 
                     case ConsoleKey.D3:
                     case ConsoleKey.NumPad3:
+
+                        DeleteAllTask();
+                        WriteLine("Successfully deleted all tasks");  
+                        Thread.Sleep(2000);
+
+                        break;
+
+                    case ConsoleKey.D4:
+                    case ConsoleKey.NumPad4:
 
                         shouldNotExit = false;
 
@@ -135,6 +145,22 @@ namespace TODO_Master
             }
 
             return taskList;
+        }
+
+        static void DeleteAllTask()
+        {
+            string queryString = @"DELETE FROM Task";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(queryString, connection);
+                               
+                connection.Open();
+
+                command.ExecuteNonQuery();
+
+                connection.Close();
+            }
         }
     }
 }
