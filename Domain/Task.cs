@@ -18,4 +18,5 @@ namespace TODO_Master.Domain
             this.title = title;
             this.dueDate = dueDate;
         }
+    }
 }

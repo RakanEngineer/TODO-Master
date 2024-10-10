@@ -1,4 +1,7 @@
-﻿namespace TODO_Master
+﻿using TODO_Master.Domain;
+using static System.Console;
+
+namespace TODO_Master
 {
     internal class Program
     {
