@@ -1,17 +1,17 @@
-﻿using TODO_Master.Domain;
+﻿using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using TODO_Master.Domain;
 using static System.Console;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TODO_Master
 {
-    internal class Program
+    class Program
     {
+        static string connectionString = "Data Source =.; Initial Catalog = TODO; Integrated Security = true; Encrypt=True;Trust Server Certificate=True";
+
         static void Main(string[] args)
         {
-            Domain.Task[] taskList = new Domain.Task[100];
-            int taskCounter = 0;
-            int nextTaskId = 1;
-
-
             bool shouldNotExit = true;
 
             while (shouldNotExit)
@@ -37,12 +37,14 @@ namespace TODO_Master
 
                         DateTime dueDate = DateTime.Parse(ReadLine());
 
-                        taskList[taskCounter++] = new Domain.Task(nextTaskId++, title, dueDate);
+                        CreateTask(title, dueDate);
 
                         break;
 
                     case ConsoleKey.D2:
                     case ConsoleKey.NumPad2:
+
+                        List<Domain.Task> taskList = FetchAllTasks();
 
                         WriteLine("Id  Title                                  Due Date   ");
                         WriteLine("-------------------------------------------------------");
@@ -51,7 +53,7 @@ namespace TODO_Master
                         {
                             if (task == null) continue;
 
-                            WriteLine($"{task.id}  {task.title}                    {task.dueDate}");
+                            WriteLine($"{task.id}  {task.title}                   {task.dueDate}");
                         }
 
                         ReadKey(true);
@@ -69,6 +71,69 @@ namespace TODO_Master
                 Clear();
             }
 
+        }
+
+        static void CreateTask(string title, DateTime dueDate)
+        {
+            string queryString = @"INSERT INTO Task (Title, DueDate)
+                                   VALUES (@Title, @DueDate)";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@Title", title);
+                command.Parameters.AddWithValue("@DueDate", dueDate);
+
+                connection.Open();
+
+                command.ExecuteNonQuery();
+
+                connection.Close();
+            }
+        }
+
+        static List<Domain.Task> FetchAllTasks()
+        {
+            string queryString = @"SELECT [Id]
+                                         ,[Title]
+                                         ,[DueDate]
+                                     FROM [TODO].[dbo].[Task]";
+
+            List<Domain.Task> taskList = new List<Domain.Task>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                try
+                {
+                    connection.Open();
+
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int id = int.Parse(reader["Id"].ToString());
+                        string title = reader["Title"].ToString();
+                        DateTime dueDate = DateTime.Parse(reader["DueDate"].ToString());
+
+                        Domain.Task task = new Domain.Task(id, title, dueDate);
+
+                        taskList.Add(task);
+                    }
+
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+
+                    WriteLine(ex.Message);
+                }
+
+            }
+
+            return taskList;
         }
     }
 }
